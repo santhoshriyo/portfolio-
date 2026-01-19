@@ -20,11 +20,6 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore-compat.js"></script>
-
     <script>
         tailwind.config = {
             theme: {
@@ -130,6 +125,7 @@
             background: #8b5cf6;
         }
 
+        /* Admin Dashboard Styles */
         .admin-panel {
             transform: translateX(100%);
             transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -137,26 +133,12 @@
         .admin-panel.open {
             transform: translateX(0);
         }
-
-        /* Loading Spinner */
-        .loader {
-            border: 2px solid #1f1f1f;
-            border-top: 2px solid #8b5cf6;
-            border-radius: 50%;
-            width: 16px;
-            height: 16px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
     </style>
 </head>
 <body class="font-sans antialiased selection:bg-accent/30 selection:text-white overflow-x-hidden">
 
     <!-- Admin Floating Toggle -->
-    <button id="admin-toggle-btn" onclick="toggleAdmin()" class="fixed bottom-6 right-6 z-[110] w-14 h-14 bg-accent text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform">
+    <button onclick="toggleAdmin()" class="fixed bottom-6 right-6 z-[110] w-14 h-14 bg-accent text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform">
         <i data-lucide="settings"></i>
     </button>
 
@@ -170,27 +152,18 @@
         </div>
         <div class="p-6 overflow-y-auto flex-grow space-y-8 custom-scrollbar">
             <div class="bg-accent/5 p-4 rounded-xl border border-accent/20 text-xs text-accent">
-                <p class="font-bold mb-1 italic tracking-wide">Syncing to Cloud:</p>
-                Your changes will be saved permanently to the database once you click Apply.
-            </div>
-
-            <!-- Admin Visibility Controls -->
-            <div class="p-4 bg-white/5 rounded-xl border border-white/10">
-                <p class="text-[10px] font-bold text-muted mb-3 uppercase tracking-widest">Visibility Settings</p>
-                <button onclick="hideAdminToggleButton()" class="w-full py-3 bg-red-500/10 text-red-500 border border-red-500/20 rounded-lg text-[11px] font-bold hover:bg-red-500 hover:text-white transition-all">
-                    Hide Settings Button (Public Mode)
-                </button>
-                <p class="text-[9px] text-muted mt-2 italic text-center">Press Shift + A to show it again.</p>
+                <p class="font-bold mb-1 italic">Update Instructions:</p>
+                The thumbnails are currently linked to local files (reel1.jpg, etc.). To change them, either replace the files in your directory or update the image path below.
             </div>
 
             <!-- Dashboard Sections -->
             <div id="admin-list-container" class="space-y-6">
-                <!-- Dynamically populated -->
+                <!-- Dynamically populated categories -->
             </div>
         </div>
         <div class="p-6 bg-dark border-t border-white/10">
-            <button id="apply-btn" onclick="applyAdminChanges()" class="w-full py-4 bg-accent text-white font-bold rounded-xl hover:shadow-[0_0_20px_rgba(139,92,246,0.3)] transition-all flex items-center justify-center gap-2 disabled:opacity-50">
-                <i data-lucide="check-circle"></i> <span id="apply-btn-text">Apply Changes</span>
+            <button onclick="applyAdminChanges()" class="w-full py-4 bg-accent text-white font-bold rounded-xl hover:shadow-[0_0_20px_rgba(139,92,246,0.3)] transition-all flex items-center justify-center gap-2">
+                <i data-lucide="check-circle"></i> Apply Changes
             </button>
         </div>
     </div>
@@ -255,7 +228,7 @@
     <section id="portfolio" class="py-24 bg-dark min-h-screen">
         <div class="max-w-7xl mx-auto px-6">
             <div id="portfolio-grid" class="grid gap-10">
-                <!-- Grid items will be injected -->
+                <!-- Grid items will be injected and layout handled by category -->
             </div>
         </div>
     </section>
@@ -279,120 +252,44 @@
     </footer>
 
     <script>
-        // --- Firebase Configuration & Initialization ---
-        const firebaseConfig = JSON.parse(__firebase_config);
-        const app = firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth(app);
-        const db = firebase.firestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'santhosh-riyo-portfolio';
-
         let currentCategory = 'commercials';
-        let user = null;
         
-        // Base project data (Fallbacks)
-        let projects = [
-            { id: 1, category: "commercials", title: "IndiGo Voyage", client: "IndiGo", platform: "instagram", source: "C0ItjSSJgxf", img: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=800" },
-            { id: 2, category: "commercials", title: "Sky High", client: "IndiGo", platform: "instagram", source: "C0qYubzpugw", img: "https://images.unsplash.com/photo-1542296332-2e44a99cfef9?q=80&w=800" },
-            { id: 3, category: "commercials", title: "Blue Skies", client: "IndiGo", platform: "instagram", source: "C4ndH6fxfgr", img: "https://images.unsplash.com/photo-1556388169-2315278b1793?q=80&w=800" },
-            { id: 4, category: "commercials", title: "IndiGo Arrival", client: "IndiGo", platform: "instagram", source: "C7tDi5cNdqa", img: "https://images.unsplash.com/photo-1474302770737-173ee21bab63?q=80&w=800" },
-            { id: 5, category: "commercials", title: "Runway", client: "IndiGo", platform: "instagram", source: "C9HIqPcCE8h", img: "https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?q=80&w=800" },
-            { id: 6, category: "commercials", title: "In the Clouds", client: "IndiGo", platform: "instagram", source: "C99Mqj7pbfK", img: "https://images.unsplash.com/photo-1506012787146-f92b2d7d6d96?q=80&w=800" },
-            { id: 7, category: "commercials", title: "Destination", client: "IndiGo", platform: "instagram", source: "C_XVAlfxPOj", img: "https://images.unsplash.com/photo-1524592714635-d77511a4834d?q=80&w=800" },
-            { id: 8, category: "filmmaking", title: "The Pilot Project", platform: "youtube", client: "Short Film", source: "mubSl4BXQlA", img: "" },
-            { id: 9, category: "filmmaking", title: "Urban Chronicles", platform: "youtube", client: "Short Film", source: "xITPTU0g6vg", img: "" },
-            { id: 10, category: "filmmaking", title: "Beyond the Lens", platform: "youtube", client: "Short Film", source: "u7VCssjooD4", img: "" },
-            { id: 11, category: "filmmaking", title: "Vibe Check", platform: "youtube", client: "Sony Music", source: "kDJ-OX57Qr4", img: "" },
-            { id: 12, category: "filmmaking", title: "Sonic Waves", platform: "youtube", client: "Sony Music", source: "iFvHLUUr-1E", img: "" },
-            { id: 13, category: "filmmaking", title: "Midnight Drive", platform: "youtube", client: "Sony Music", source: "KiJn7MjGH48", img: "" },
-            { id: 14, category: "filmmaking", title: "Silent Echoes", platform: "youtube", client: "Short Film", source: "brprXn796gQ", img: "" },
-            { id: 15, category: "filmmaking", title: "Final Horizon", platform: "youtube", client: "Short Film", source: "MQ4-DYsF5KI", img: "" },
-            { id: 16, category: "awards", title: "HIPA Competition", client: "HIPA Awards", platform: "instagram", source: "DQ7GMmilBtv", img: "https://images.unsplash.com/photo-1554048612-387768052bf7?q=80&w=800" },
-            { id: 17, category: "awards", title: "HIPA Soundscapes", client: "HIPA Awards", platform: "instagram", source: "DClTHFHyzQg", img: "https://images.unsplash.com/photo-1514320291840-2e0a9bf229ae?q=80&w=800" },
-            { id: 18, category: "awards", title: "Recent Accolade", client: "Instagram Post", platform: "instagram", source: "DLiBzTBzMWx", img: "https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=800" }
+        const projects = [
+            // --- COMMERCIALS (Instagram Vertical) ---
+            { id: 1, category: "commercials", title: "IndiGo Voyage", client: "IndiGo", platform: "instagram", source: "C0ItjSSJgxf", img: "reel1.jpg" },
+            { id: 2, category: "commercials", title: "Sky High", client: "IndiGo", platform: "instagram", source: "C0qYubzpugw", img: "reel2.jpg" },
+            { id: 3, category: "commercials", title: "Blue Skies", client: "IndiGo", platform: "instagram", source: "C4ndH6fxfgr", img: "reel3.jpg" },
+            { id: 4, category: "commercials", title: "IndiGo Arrival", client: "IndiGo", platform: "instagram", source: "C7tDi5cNdqa", img: "reel4.jpg" },
+            { id: 5, category: "commercials", title: "Runway", client: "IndiGo", platform: "instagram", source: "C9HIqPcCE8h", img: "reel5.jpg" },
+            { id: 6, category: "commercials", title: "In the Clouds", client: "IndiGo", platform: "instagram", source: "C99Mqj7pbfK", img: "reel6.jpg" },
+            { id: 7, category: "commercials", title: "Destination", client: "IndiGo", platform: "instagram", source: "C_XVAlfxPOj", img: "reel7.jpg" },
+
+            // --- FILMMAKING (YouTube Landscape) ---
+            { id: 8, category: "filmmaking", title: "The Pilot Project", platform: "youtube", client: "Short Film", source: "mubSl4BXQlA", img: "reel8.jpg" },
+            { id: 9, category: "filmmaking", title: "Urban Chronicles", platform: "youtube", client: "Short Film", source: "xITPTU0g6vg", img: "reel9.jpg" },
+            { id: 10, category: "filmmaking", title: "Beyond the Lens", platform: "youtube", client: "Short Film", source: "u7VCssjooD4", img: "reel10.jpg" },
+            { id: 11, category: "filmmaking", title: "Vibe Check", platform: "youtube", client: "Sony Music", source: "kDJ-OX57Qr4", img: "reel11.jpg" },
+            { id: 12, category: "filmmaking", title: "Sonic Waves", platform: "youtube", client: "Sony Music", source: "iFvHLUUr-1E", img: "reel12.jpg" },
+            { id: 13, category: "filmmaking", title: "Midnight Drive", platform: "youtube", client: "Sony Music", source: "KiJn7MjGH48", img: "reel13.jpg" },
+            { id: 14, category: "filmmaking", title: "Silent Echoes", platform: "youtube", client: "Short Film", source: "brprXn796gQ", img: "reel14.jpg" },
+            { id: 15, category: "filmmaking", title: "Final Horizon", platform: "youtube", client: "Short Film", source: "MQ4-DYsF5KI", img: "reel15.jpg" },
+
+            // --- AWARDS (Instagram Vertical) ---
+            { id: 16, category: "awards", title: "HIPA Competition", client: "HIPA Awards", platform: "instagram", source: "DQ7GMmilBtv", img: "reel16.jpg" },
+            { id: 17, category: "awards", title: "HIPA Soundscapes", client: "HIPA Awards", platform: "instagram", source: "DClTHFHyzQg", img: "reel17.jpg" },
+            { id: 18, category: "awards", title: "Recent Accolade", client: "Instagram Post", platform: "instagram", source: "DLiBzTBzMWx", img: "reel18.jpg" }
         ];
 
-        // --- Cloud Storage Helpers ---
-        async function syncFromCloud() {
-            if (!user) return;
-            try {
-                // FIXED PATH: Ensure even number of segments (6)
-                const docRef = db.doc(`artifacts/${appId}/public/data/content/projectData`);
-                const doc = await docRef.get();
-                if (doc.exists) {
-                    const cloudData = doc.data().projects;
-                    if (cloudData && Array.isArray(cloudData)) {
-                        projects = projects.map(p => {
-                            const saved = cloudData.find(cp => cp.id === p.id);
-                            return saved ? { ...p, img: saved.img } : p;
-                        });
-                        switchCategory(currentCategory);
-                    }
-                }
-            } catch (err) {
-                console.error("Cloud Sync Failed:", err);
-            }
-        }
-
-        async function saveToCloud() {
-            if (!user) return;
-            const btn = document.getElementById('apply-btn');
-            const btnText = document.getElementById('apply-btn-text');
-            btn.disabled = true;
-            btnText.innerHTML = `<span class="flex items-center gap-2">Saving... <div class="loader"></div></span>`;
-
-            try {
-                const dataToSave = projects.map(p => ({ id: p.id, img: p.img || "" }));
-                // FIXED PATH: Ensure even number of segments (6)
-                await db.doc(`artifacts/${appId}/public/data/content/projectData`).set({ projects: dataToSave });
-                
-                btnText.innerText = "Saved Successfully!";
-                setTimeout(() => {
-                    btn.disabled = false;
-                    btnText.innerText = "Apply Changes";
-                    toggleAdmin();
-                }, 1500);
-            } catch (err) {
-                console.error("Cloud Save Failed:", err);
-                btnText.innerText = "Error Saving";
-                btn.disabled = false;
-            }
-        }
-
-        // --- Auth Initialization ---
-        async function initAuth() {
-            try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await auth.signInWithCustomToken(__initial_auth_token);
-                } else {
-                    await auth.signInAnonymously();
-                }
-            } catch (err) {
-                console.error("Auth failed:", err);
-            }
-        }
-
-        auth.onAuthStateChanged((u) => {
-            user = u;
-            if (u) syncFromCloud();
-        });
-
-        // --- UI Functions ---
         function toggleAdmin() {
             const panel = document.getElementById('admin-dashboard');
             panel.classList.toggle('open');
             if(panel.classList.contains('open')) populateAdminDashboard();
         }
 
-        function hideAdminToggleButton() {
-            const btn = document.getElementById('admin-toggle-btn');
-            if (btn) btn.classList.add('hidden');
-            const panel = document.getElementById('admin-dashboard');
-            if (panel.classList.contains('open')) panel.classList.remove('open');
-        }
-
         function populateAdminDashboard() {
             const container = document.getElementById('admin-list-container');
             container.innerHTML = '';
+
             const cats = ['commercials', 'filmmaking', 'awards'];
             
             cats.forEach(cat => {
@@ -405,26 +302,25 @@
                     item.className = "mb-6 p-4 bg-white/5 rounded-lg border border-white/5";
                     
                     const currentImg = p.img || '';
-                    // SAFETY: check if currentImg exists before calling startsWith
-                    const displayValue = (currentImg && currentImg.startsWith('data:')) ? '[Local Image Loaded]' : currentImg;
+                    const displayValue = currentImg.startsWith('data:') ? '[Base64 File]' : currentImg;
 
                     item.innerHTML = `
-                        <p class="text-[10px] font-bold text-white mb-3 uppercase tracking-tighter">${p.title}</p>
+                        <p class="text-[10px] font-bold text-white mb-3 uppercase tracking-tighter">${p.title} (ID: ${p.id})</p>
                         <div class="space-y-3">
                             <div>
-                                <label class="block text-[9px] text-muted mb-1 font-bold">IMAGE URL</label>
+                                <label class="block text-[9px] text-muted mb-1 font-bold">IMAGE PATH</label>
                                 <input type="text" 
                                     id="admin-img-${p.id}" 
                                     value="${displayValue}" 
-                                    placeholder="Paste #url here..."
+                                    placeholder="e.g. reel${p.id}.jpg"
                                     class="w-full bg-dark border border-white/10 rounded px-3 py-2 text-[11px] text-muted focus:border-accent outline-none">
                             </div>
                             <div class="flex items-center gap-3">
                                 <label class="flex-grow cursor-pointer bg-white/10 hover:bg-white/20 text-white text-[10px] font-bold px-3 py-2 rounded text-center transition-colors">
-                                    <i data-lucide="upload" class="inline-block w-3 h-3 mr-1"></i> UPLOAD FILE
+                                    <i data-lucide="upload" class="inline-block w-3 h-3 mr-1"></i> SELECT NEW FILE
                                     <input type="file" accept="image/*" class="hidden" onchange="handleFileUpload(event, ${p.id})">
                                 </label>
-                                <div id="preview-${p.id}" class="w-10 h-10 rounded bg-dark border border-white/10 flex-shrink-0 bg-cover bg-center" style="background-image: url('${currentImg}')"></div>
+                                <div id="preview-${p.id}" class="w-10 h-10 rounded bg-dark border border-white/10 flex-shrink-0 bg-cover bg-center" style="background-image: url('${currentImg || ''}')"></div>
                             </div>
                         </div>
                     `;
@@ -438,6 +334,7 @@
         function handleFileUpload(event, projectId) {
             const file = event.target.files[0];
             if (!file) return;
+
             const reader = new FileReader();
             reader.onload = function(e) {
                 const base64Data = e.target.result;
@@ -447,7 +344,7 @@
                     const preview = document.getElementById(`preview-${projectId}`);
                     if (preview) preview.style.backgroundImage = `url('${base64Data}')`;
                     const input = document.getElementById(`admin-img-${projectId}`);
-                    if (input) input.value = "[Local Image Loaded]";
+                    if (input) input.value = "[Local File Selected]";
                 }
             };
             reader.readAsDataURL(file);
@@ -456,11 +353,13 @@
         function applyAdminChanges() {
             projects.forEach(p => {
                 const input = document.getElementById(`admin-img-${p.id}`);
-                if(input && !input.value.includes('[Local Image Loaded]')) {
+                if(input && !input.value.includes('[Local File Selected]') && !input.value.includes('[Base64 File]')) {
                     p.img = input.value;
                 }
             });
-            saveToCloud(); // PERSIST TO DATABASE
+            
+            switchCategory(currentCategory);
+            toggleAdmin();
         }
 
         function switchCategory(cat) {
@@ -499,12 +398,12 @@
                         </div>
                     `;
                 } else {
-                    const thumb = (!pImg || pImg === "") ? `https://img.youtube.com/vi/${p.source}/maxresdefault.jpg` : pImg;
+                    const thumb = pImg;
                     card.className = "project-card relative group bg-surface rounded-[2.5rem] overflow-hidden border border-white/5 cursor-pointer shadow-lg";
                     card.onclick = () => openVideo(p.source, p.title, p.client, 'youtube');
                     card.innerHTML = `
                         <div class="relative h-64 overflow-hidden">
-                            <img src="${thumb}" alt="${p.title}" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 opacity-80 group-hover:opacity-100">
+                            <img src="${thumb}" alt="${p.title}" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 opacity-80 group-hover:opacity-100" onerror="this.src='https://img.youtube.com/vi/${p.source}/maxresdefault.jpg';">
                             <div class="project-overlay absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col items-center justify-center p-8 text-center">
                                 <div class="w-16 h-16 bg-accent rounded-full flex items-center justify-center text-white mb-4 shadow-xl">
                                     <i data-lucide="play" class="w-6 h-6 fill-current"></i>
@@ -518,6 +417,11 @@
                 grid.appendChild(card);
             });
             lucide.createIcons();
+            
+            if(window.scrollY < 200) {
+                const portfolioEl = document.getElementById('portfolio');
+                if (portfolioEl) portfolioEl.scrollIntoView({ behavior: 'smooth' });
+            }
         }
 
         function openVideo(src, title, desc, platform) {
@@ -556,14 +460,9 @@
 
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') closeVideo();
-            if (e.shiftKey && (e.key === 'A' || e.key === 'a')) {
-                const btn = document.getElementById('admin-toggle-btn');
-                if (btn) btn.classList.remove('hidden');
-            }
         });
 
-        window.onload = async () => {
-            await initAuth();
+        window.onload = () => {
             switchCategory('commercials');
             lucide.createIcons();
         };
