@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Santhosh Riyo | Portfolio</title>
+    <meta name="description" content="Official portfolio of Santhosh Riyo - Music Producer, Composer, and Vocalist.">
+    
+    <!-- FIX FOR YOUTUBE & INSTAGRAM EMBEDS -->
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: '#050505',
+                        surface: '#0f1115',
+                        accent: '#8b5cf6', 
+                        secondary: '#06b6d4',
+                        muted: '#94a3b8',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #050505;
+            color: #f1f5f9;
+        }
+
+        .hero-gradient {
+            background: radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.15) 0%, rgba(5, 5, 5, 1) 80%);
+        }
+
+        .project-card {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .project-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(139, 92, 246, 0.4);
+        }
+
+        .project-overlay {
+            background: linear-gradient(to top, rgba(15, 17, 21, 0.98), rgba(15, 17, 21, 0.2));
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; 
+            height: 0;
+            overflow: hidden;
+            width: 100%;
+            background: #000;
+        }
+        
+        .video-container.vertical-reel {
+            padding-bottom: 177.77%; 
+            max-width: 420px;
+            margin: 0 auto;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .tab-btn {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            color: white;
+            background: rgba(139, 92, 246, 0.2);
+            border-color: #8b5cf6;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #050505;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1f1f1f;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #8b5cf6;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased selection:bg-accent/30 selection:text-white overflow-x-hidden">
+
+    <!-- Video Modal -->
+    <div id="video-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 md:p-10">
+        <div class="absolute inset-0 bg-dark/95 backdrop-blur-xl" onclick="closeVideo()"></div>
+        <div class="relative w-full max-w-5xl bg-surface rounded-3xl overflow-hidden shadow-2xl border border-white/5 flex flex-col max-h-[90vh]">
+            <button onclick="closeVideo()" class="absolute top-4 right-4 z-20 w-10 h-10 bg-dark/50 text-white rounded-full flex items-center justify-center hover:bg-accent transition-colors">
+                <i data-lucide="x"></i>
+            </button>
+            
+            <div class="overflow-y-auto custom-scrollbar flex-grow flex flex-col">
+                <div id="video-wrapper" class="video-container flex-grow bg-black"></div>
+                <div class="p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-surface shrink-0">
+                    <div>
+                        <h3 id="modal-title" class="text-2xl font-bold text-white mb-2"></h3>
+                        <p id="modal-desc" class="text-muted"></p>
+                    </div>
+                    <a id="external-link" href="#" target="_blank" class="flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-sm font-bold transition-all whitespace-nowrap">
+                        <i data-lucide="external-link" class="w-4 h-4"></i>
+                        <span id="external-link-text">Watch Original</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="relative min-h-[80vh] flex flex-col items-center justify-center overflow-hidden pt-20">
+        <div class="absolute inset-0 hero-gradient z-0"></div>
+        <div class="absolute top-1/4 -left-20 w-96 h-96 bg-accent/10 rounded-full blur-[120px] animate-float"></div>
+        <div class="absolute bottom-1/4 -right-20 w-96 h-96 bg-secondary/10 rounded-full blur-[120px] animate-float" style="animation-delay: -3s;"></div>
+
+        <div class="relative z-10 text-center px-6">
+            <h1 class="font-serif text-7xl md:text-9xl mb-6 tracking-tighter text-white">
+                Santhosh <span class="italic font-light opacity-80">Riyo</span>
+            </h1>
+            <p class="text-gradient text-sm md:text-lg uppercase tracking-[0.5em] font-bold mb-10">
+                Music Producer &bullet; Composer &bullet; Vocalist
+            </p>
+            <p class="max-w-xl mx-auto text-muted text-lg md:text-xl font-light leading-relaxed mb-12">
+                Re-defining the visual experience through professional sonic identity.
+            </p>
+            
+            <!-- Category Navigation -->
+            <div class="flex flex-col sm:flex-row justify-center gap-4 mt-8">
+                <button onclick="switchCategory('commercials')" id="nav-commercials" class="tab-btn active px-12 py-5 border border-white/10 text-white font-bold rounded-full transition-all hover:border-accent">
+                    Commercials
+                </button>
+                <button onclick="switchCategory('filmmaking')" id="nav-filmmaking" class="tab-btn px-12 py-5 border border-white/10 text-white font-bold rounded-full transition-all hover:border-accent">
+                    Filmmaking
+                </button>
+                <button onclick="switchCategory('awards')" id="nav-awards" class="tab-btn px-12 py-5 border border-white/10 text-white font-bold rounded-full transition-all hover:border-accent">
+                    Awards
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Unified Portfolio Section -->
+    <section id="portfolio" class="py-24 bg-dark min-h-screen">
+        <div class="max-w-7xl mx-auto px-6">
+            <div id="portfolio-grid" class="grid gap-10">
+                <!-- Grid items will be injected and layout handled by category -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-20 bg-dark border-t border-white/5">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <div class="font-serif text-3xl mb-8 text-white">SANTHOSH <span class="text-accent">RIYO</span></div>
+            <div class="flex justify-center gap-8 mb-8">
+                <a href="https://www.instagram.com/santhoshriyo/" target="_blank" class="text-muted hover:text-white transition-colors">
+                    <i data-lucide="instagram"></i>
+                </a>
+                <a href="#" class="text-muted hover:text-white transition-colors">
+                    <i data-lucide="spotify"></i>
+                </a>
+            </div>
+            <div class="text-muted text-[10px] uppercase tracking-[0.4em] opacity-40">
+                &copy; 2024 Santhosh Riyo. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        /**
+         * MANUAL THUMBNAIL INSTRUCTIONS:
+         * For all Instagram projects (Commercials & Awards), 
+         * replace the placeholder 'assets/thumbnails/...' paths below 
+         * with your actual image file locations.
+         */
+        const projects = [
+            // --- COMMERCIALS (Instagram Vertical) ---
+            { id: 1, category: "commercials", title: "IndiGo Voyage", client: "IndiGo", platform: "instagram", source: "C0ItjSSJgxf", img: "assets/thumbnails/indigo-01.jpg" },
+            { id: 2, category: "commercials", title: "Sky High", client: "IndiGo", platform: "instagram", source: "C0qYubzpugw", img: "assets/thumbnails/indigo-02.jpg" },
+            { id: 3, category: "commercials", title: "Blue Skies", client: "IndiGo", platform: "instagram", source: "C4ndH6fxfgr", img: "assets/thumbnails/indigo-03.jpg" },
+            { id: 4, category: "commercials", title: "IndiGo Arrival", client: "IndiGo", platform: "instagram", source: "C7tDi5cNdqa", img: "assets/thumbnails/indigo-04.jpg" },
+            { id: 5, category: "commercials", title: "Runway", client: "IndiGo", platform: "instagram", source: "C9HIqPcCE8h", img: "assets/thumbnails/indigo-05.jpg" },
+            { id: 6, category: "commercials", title: "In the Clouds", client: "IndiGo", platform: "instagram", source: "C99Mqj7pbfK", img: "assets/thumbnails/indigo-06.jpg" },
+            { id: 7, category: "commercials", title: "Destination", client: "IndiGo", platform: "instagram", source: "C_XVAlfxPOj", img: "assets/thumbnails/indigo-07.jpg" },
+
+            // --- FILMMAKING (YouTube Landscape) ---
+            { id: 8, category: "filmmaking", title: "The Pilot Project", platform: "youtube", client: "Short Film", source: "mubSl4BXQlA" },
+            { id: 9, category: "filmmaking", title: "Urban Chronicles", platform: "youtube", client: "Short Film", source: "xITPTU0g6vg" },
+            { id: 10, category: "filmmaking", title: "Beyond the Lens", platform: "youtube", client: "Short Film", source: "u7VCssjooD4" },
+            { id: 11, category: "filmmaking", title: "Vibe Check", platform: "youtube", client: "Sony Music", source: "kDJ-OX57Qr4" },
+            { id: 12, category: "filmmaking", title: "Sonic Waves", platform: "youtube", client: "Sony Music", source: "iFvHLUUr-1E" },
+            { id: 13, category: "filmmaking", title: "Midnight Drive", platform: "youtube", client: "Sony Music", source: "KiJn7MjGH48" },
+            { id: 14, category: "filmmaking", title: "Silent Echoes", platform: "youtube", client: "Short Film", source: "brprXn796gQ" },
+            { id: 15, category: "filmmaking", title: "Final Horizon", platform: "youtube", client: "Short Film", source: "MQ4-DYsF5KI" },
+
+            // --- AWARDS (Instagram Vertical) ---
+            { id: 16, category: "awards", title: "HIPA Competition", client: "HIPA Awards", platform: "instagram", source: "DQ7GMmilBtv", img: "assets/thumbnails/hipa-01.jpg" },
+            { id: 17, category: "awards", title: "HIPA Soundscapes", client: "HIPA Awards", platform: "instagram", source: "DClTHFHyzQg", img: "assets/thumbnails/hipa-02.jpg" },
+            { id: 18, category: "awards", title: "Recent Accolade", client: "Instagram Post", platform: "instagram", source: "DLiBzTBzMWx", img: "assets/thumbnails/awards-recent.jpg" }
+        ];
+
+        function switchCategory(cat) {
+            // Update Active Nav Style
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`nav-${cat}`).classList.add('active');
+
+            const grid = document.getElementById('portfolio-grid');
+            grid.innerHTML = '';
+            
+            // Reconfigure Grid layout based on category
+            if (cat === 'filmmaking') {
+                grid.className = "grid md:grid-cols-2 lg:grid-cols-3 gap-10";
+            } else if (cat === 'commercials') {
+                grid.className = "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6";
+            } else {
+                grid.className = "grid grid-cols-2 md:grid-cols-3 gap-8 max-w-5xl mx-auto";
+            }
+
+            const filtered = projects.filter(p => p.category === cat);
+
+            filtered.forEach(p => {
+                const card = document.createElement('div');
+                
+                if (p.platform === 'instagram') {
+                    // Vertical Card Style
+                    card.className = "project-card relative group bg-surface rounded-2xl overflow-hidden border border-white/5 cursor-pointer shadow-lg aspect-[9/16]";
+                    card.onclick = () => openVideo(p.source, p.title, p.client, 'instagram');
+                    card.innerHTML = `
+                        <img src="${p.img}" alt="${p.title}" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 opacity-70 group-hover:opacity-100" onerror="this.src='https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=800';">
+                        <div class="project-overlay absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col items-center justify-center p-4 text-center">
+                            <div class="w-12 h-12 bg-accent rounded-full flex items-center justify-center text-white mb-4 shadow-xl">
+                                <i data-lucide="instagram" class="w-5 h-5 fill-current"></i>
+                            </div>
+                            <h3 class="text-sm font-bold text-white uppercase tracking-tighter">${p.client}</h3>
+                        </div>
+                    `;
+                } else {
+                    // Landscape Card Style (YouTube)
+                    const thumb = `https://img.youtube.com/vi/${p.source}/maxresdefault.jpg`;
+                    card.className = "project-card relative group bg-surface rounded-[2.5rem] overflow-hidden border border-white/5 cursor-pointer shadow-lg";
+                    card.onclick = () => openVideo(p.source, p.title, p.client, 'youtube');
+                    card.innerHTML = `
+                        <div class="relative h-64 overflow-hidden">
+                            <img src="${thumb}" alt="${p.title}" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 opacity-80 group-hover:opacity-100">
+                            <div class="project-overlay absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col items-center justify-center p-8 text-center">
+                                <div class="w-16 h-16 bg-accent rounded-full flex items-center justify-center text-white mb-4 shadow-xl">
+                                    <i data-lucide="play" class="w-6 h-6 fill-current"></i>
+                                </div>
+                                <span class="text-[10px] uppercase tracking-[0.3em] text-accent font-bold mb-2">${p.client}</span>
+                                <h3 class="text-xl font-bold text-white mb-2">${p.title}</h3>
+                            </div>
+                        </div>
+                    `;
+                }
+                grid.appendChild(card);
+            });
+            lucide.createIcons();
+            
+            // Smooth Scroll to results
+            if(window.scrollY < 200) {
+                document.getElementById('portfolio').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function openVideo(src, title, desc, platform) {
+            const modal = document.getElementById('video-modal');
+            const wrapper = document.getElementById('video-wrapper');
+            const extLink = document.getElementById('external-link');
+            const extLinkText = document.getElementById('external-link-text');
+            
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-desc').innerText = desc;
+            
+            if (platform === 'instagram') {
+                wrapper.className = 'video-container vertical-reel';
+                extLink.href = `https://www.instagram.com/reel/${src}/`;
+                extLinkText.innerText = "Watch on Instagram";
+                
+                // Using /embed/ trailing slash for both Reels and Posts
+                wrapper.innerHTML = `<iframe 
+                    src="https://www.instagram.com/p/${src}/embed/" 
+                    frameborder="0" 
+                    scrolling="no" 
+                    allowtransparency="true" 
+                    allowfullscreen
+                    referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+            } else {
+                wrapper.className = 'video-container';
+                extLink.href = `https://www.youtube.com/watch?v=${src}`;
+                extLinkText.innerText = "Watch on YouTube";
+                
+                wrapper.innerHTML = `<iframe 
+                    src="https://www.youtube.com/embed/${src}?autoplay=1&rel=0&modestbranding=1&playsinline=1" 
+                    title="${title}" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                    referrerpolicy="strict-origin-when-cross-origin" 
+                    allowfullscreen></iframe>`;
+            }
+            
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            lucide.createIcons();
+        }
+
+        function closeVideo() {
+            const modal = document.getElementById('video-modal');
+            const wrapper = document.getElementById('video-wrapper');
+            wrapper.innerHTML = '';
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeVideo();
+        });
+
+        window.onload = () => {
+            switchCategory('commercials'); // Default view
+        };
+    </script>
+</body>
+</html>
