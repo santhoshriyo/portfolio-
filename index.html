@@ -137,12 +137,7 @@
 </head>
 <body class="font-sans antialiased selection:bg-accent/30 selection:text-white overflow-x-hidden">
 
-    <!-- Admin Floating Toggle -->
-    <button onclick="toggleAdmin()" class="fixed bottom-6 right-6 z-[110] w-14 h-14 bg-accent text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform">
-        <i data-lucide="settings"></i>
-    </button>
-
-    <!-- Admin Dashboard (Backend GUI) -->
+    <!-- Admin Dashboard (Backend GUI) - Accessible via toggleAdmin() in console if needed -->
     <div id="admin-dashboard" class="admin-panel fixed top-0 right-0 w-full md:w-[450px] h-full z-[120] bg-surface border-l border-white/10 shadow-2xl flex flex-col">
         <div class="p-6 border-b border-white/10 flex justify-between items-center bg-dark">
             <h2 class="text-xl font-bold flex items-center gap-2">
@@ -263,6 +258,7 @@
             { id: 5, category: "commercials", title: "Runway", client: "IndiGo", platform: "instagram", source: "C9HIqPcCE8h", img: "reel5.jpg" },
             { id: 6, category: "commercials", title: "In the Clouds", client: "IndiGo", platform: "instagram", source: "C99Mqj7pbfK", img: "reel6.jpg" },
             { id: 7, category: "commercials", title: "Destination", client: "IndiGo", platform: "instagram", source: "C_XVAlfxPOj", img: "reel7.jpg" },
+            { id: 19, category: "commercials", title: "Cinematic Journey", client: "New Commercial", platform: "instagram", source: "Cy-QQFLtqFf", img: "reel19.jpg" },
 
             // --- FILMMAKING (YouTube Landscape) ---
             { id: 8, category: "filmmaking", title: "The Pilot Project", platform: "youtube", client: "Short Film", source: "mubSl4BXQlA", img: "reel8.jpg" },
@@ -388,19 +384,20 @@
                 if (p.platform === 'instagram') {
                     card.className = "project-card relative group bg-surface rounded-2xl overflow-hidden border border-white/5 cursor-pointer shadow-lg aspect-[9/16]";
                     card.onclick = () => openVideo(p.source, p.title, p.client, 'instagram');
+                    
                     card.innerHTML = `
                         <img src="${pImg}" alt="${p.title}" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 opacity-70 group-hover:opacity-100" onerror="this.src='https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=800';">
                         <div class="project-overlay absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col items-center justify-center p-4 text-center">
                             <div class="w-12 h-12 bg-accent rounded-full flex items-center justify-center text-white mb-4 shadow-xl">
-                                <i data-lucide="instagram" class="w-5 h-5 fill-current"></i>
+                                <i data-lucide="play" class="w-5 h-5 fill-current"></i>
                             </div>
-                            <h3 class="text-sm font-bold text-white uppercase tracking-tighter">${p.client}</h3>
                         </div>
                     `;
                 } else {
                     const thumb = pImg;
                     card.className = "project-card relative group bg-surface rounded-[2.5rem] overflow-hidden border border-white/5 cursor-pointer shadow-lg";
                     card.onclick = () => openVideo(p.source, p.title, p.client, 'youtube');
+                    
                     card.innerHTML = `
                         <div class="relative h-64 overflow-hidden">
                             <img src="${thumb}" alt="${p.title}" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 opacity-80 group-hover:opacity-100" onerror="this.src='https://img.youtube.com/vi/${p.source}/maxresdefault.jpg';">
@@ -408,8 +405,6 @@
                                 <div class="w-16 h-16 bg-accent rounded-full flex items-center justify-center text-white mb-4 shadow-xl">
                                     <i data-lucide="play" class="w-6 h-6 fill-current"></i>
                                 </div>
-                                <span class="text-[10px] uppercase tracking-[0.3em] text-accent font-bold mb-2">${p.client}</span>
-                                <h3 class="text-xl font-bold text-white mb-2">${p.title}</h3>
                             </div>
                         </div>
                     `;
